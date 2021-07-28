@@ -1,0 +1,61 @@
+esphome:
+  name: office
+  platform: ESP32
+  board: esp32dev
+  includes:
+    - util.h
+
+
+# Enable logging
+logger:
+  level: DEBUG
+
+ota:
+  password: ""
+
+wifi:
+  ssid: "kni"
+  password: !secret kni_pw
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Office Fallback Hotspot"
+    password: !secret office_fallback_pw
+
+captive_portal:
+
+remote_transmitter:
+  pin:
+    number: GPIO12
+  carrier_duty_percent: 50%
+
+mqtt:
+  broker: kelvie-lws.lan
+  username: office
+  password: !secret mqtt_office_pw
+  # Format of each message is "addr cmd"
+  on_message:
+    - topic: office/irblast
+      then:
+        - remote_transmitter.transmit_nec:
+            address: !lambda |-
+              int addr;
+              int n = sscanf(x.c_str(), "%i %*s", &addr);
+              if (n != 1) {
+                  return 0;
+              }
+
+              ESP_LOGD("irblast", "address: 0x%.2x", addr);
+
+              return nec_format(addr & 0xff);
+
+            command: !lambda |-
+              int cmd;
+              int n = sscanf(x.c_str(), "%*s %i", &cmd);
+              if (n != 1) {
+                  return 0;
+              }
+
+              ESP_LOGD("irblast", "command: 0x%.2x", cmd);
+
+              return nec_format(cmd & 0xff);

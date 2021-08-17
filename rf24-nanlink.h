@@ -35,6 +35,7 @@ class RF24NanlinkSpiComponent : public Component, public CustomMQTTDevice {
       const char *cmd = payload.c_str();
       uint8_t channel = default_channel;
       uint8_t args[5] = {0};
+      uint8_t times = 1;
       if (sscanf(cmd, "raw_cmd %hhu %hhu %hhu %hhu %hhu", args, args+1, args+2,
                  args+3, args+4) > 3) {
 
@@ -48,16 +49,46 @@ class RF24NanlinkSpiComponent : public Component, public CustomMQTTDevice {
         send_payload(channel, args[0], args[1], args[2], args[3]);
 
       } else if (sscanf(cmd, "power %hhu", &channel) == 1) {
+
         ESP_LOGD("rf24nanlink", "power called on channel %d", channel);
-        send_payload(channel, 1, 1, 0, 0);
+        send_payload(channel, 1, 1, 1, 0, 0);
+
+      } else if (sscanf(cmd, "dim_up %hhu %hhu", args, args+1) > 0) {
+
+        if (args[0])
+          times = args[0];
+
+        if (args[1])
+          channel = args[1];
+
+        ESP_LOGD("rf24nanlink", "calling dim_up %d times on channel %d", times, channel);
+
+        send_payload(channel, 3, 1, 0, 0, times);
+
+      } else if (sscanf(cmd, "dim_down %hhu %hhu", args, args+1) > 0) {
+
+        if (args[0])
+          times = args[0];
+
+        if (args[1])
+          channel = args[1];
+
+        ESP_LOGD("rf24nanlink", "calling dim_down %d times on channel %d", times, channel);
+
+        // Same comment for byte11 as for dim_up
+        send_payload(channel, 3, 2, 0, 0, times);
+
       } else {
         ESP_LOGD("rf24nanlink", "unknown input: %s", cmd);
       }
     }
 
   private:
-    void send_payload(uint8_t channel, uint8_t b7, uint8_t b9, uint8_t b11, uint8_t b13) {
-      ESP_LOGD("rf24nanlink", "send_payload called, seq number: %d", seqno);
+    // Don't think b13 is actually anything, needs more experimentation
+    void send_payload(uint8_t channel, uint8_t b7, uint8_t b9, uint8_t b11,
+                      uint8_t b13, int repeats = 1) {
+      ESP_LOGD("rf24nanlink", "Sending %d rf24 payload(s), seq number: %d",
+               repeats, seqno);
       uint8_t tx_channel[5] = { 0, 0, 0, 0 , channel};
       uint8_t message[32] = {0x0, 0x1, 0x1, 0xf, seqno};
       uint8_t checksum = 1;
@@ -74,9 +105,13 @@ class RF24NanlinkSpiComponent : public Component, public CustomMQTTDevice {
 
       radio.openReadingPipe(0, tx_channel);
       radio.openWritingPipe(tx_channel);
-      radio.write(message, 32);
-
-      seqno++;
+      for (int i = 0; i < repeats; ++i) {
+        radio.write(message, 32);
+        seqno++;
+      }
+      if (repeats > 1) {
+        ESP_LOGD("rf24nanlink", "Next seq number will be: %d", seqno);
+      }
     }
 };
 

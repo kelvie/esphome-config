@@ -106,7 +106,7 @@ class RF24NanlinkSpiComponent : public Component, public CustomMQTTDevice {
       radio.openReadingPipe(0, tx_channel);
       radio.openWritingPipe(tx_channel);
       for (int i = 0; i < repeats; ++i) {
-        radio.write(message, 32);
+        radio.writeBlocking(message, 32, 100);
         seqno++;
       }
       if (repeats > 1) {

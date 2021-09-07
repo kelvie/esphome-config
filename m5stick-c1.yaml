@@ -1,0 +1,32 @@
+esphome:
+  name: m5stick-c1
+  platform: ESP32
+  board: m5stick-c
+
+# Enable logging
+#logger:
+#  level: DEBUG
+
+ota:
+  password: ""
+
+mqtt:
+  broker: kelvie-lws.lan
+  username: m5stickc1
+  password: !secret mqtt_m5stickc1_pw
+
+wifi:
+  ssid: "kni"
+  password: !secret kni_pw
+
+binary_sensor:
+  - platform: gpio
+    id: button1
+    pin:
+      number: GPIO37
+      inverted: true
+    on_release:
+      then:
+        - mqtt.publish:
+            topic: m5stick-c/button1
+            payload: ding

@@ -2,9 +2,16 @@ esphome:
   name: office
   platform: ESP32
   board: esp32dev
+  libraries:
+    - rf24
   includes:
     - util.h
+    - rf24-nanlink.h
 
+spi:
+  clk_pin: GPIO22
+  mosi_pin: GPIO23
+  miso_pin: GPIO19
 
 # Enable logging
 logger:
@@ -16,13 +23,6 @@ ota:
 wifi:
   ssid: "kni"
   password: !secret kni_pw
-
-  # Enable fallback hotspot (captive portal) in case wifi connection fails
-  ap:
-    ssid: "Office Fallback Hotspot"
-    password: !secret office_fallback_pw
-
-captive_portal:
 
 remote_transmitter:
   pin:
@@ -59,3 +59,10 @@ mqtt:
               ESP_LOGD("irblast", "command: 0x%.2x", cmd);
 
               return nec_format(cmd & 0xff);
+
+custom_component:
+  - lambda: |-
+      return {new RF24NanlinkSpiComponent};
+    components:
+      - id: nanlink_rf24
+        # cs_pin: GPIO33

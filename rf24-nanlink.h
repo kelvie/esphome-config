@@ -78,6 +78,12 @@ class RF24NanlinkSpiComponent : public Component, public CustomMQTTDevice {
         // Same comment for byte11 as for dim_up
         send_payload(channel, 3, 2, 0, 0, times);
 
+      } else if (sscanf(cmd, "cct_mode %hhu", args) > 0) {
+        if (args[0])
+          channel = args[0];
+
+        send_payload(channel, 2, 1, 1, 0, 1);
+
       } else {
         ESP_LOGD("rf24nanlink", "unknown input: %s", cmd);
       }

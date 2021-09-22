@@ -14,6 +14,10 @@ mqtt:
   broker: kelvie-lws.lan
   username: m5stickc1
   password: !secret mqtt_m5stickc1_pw
+  on_message:
+    - topic: office/usbswitch
+      then:
+        - switch.turn_on: usbswitch
 
 wifi:
   ssid: "kni"

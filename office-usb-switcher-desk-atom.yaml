@@ -1,0 +1,42 @@
+esphome:
+  name: office-usb-switcher-desk-atom
+  platform: ESP32
+  board: esp32dev
+
+# Enable logging
+logger:
+  level: DEBUG
+
+ota:
+  password: ""
+
+mqtt:
+  broker: kelvie-lws.lan
+  username: m5stickc1
+  password: !secret mqtt_m5stickc1_pw
+
+wifi:
+  ssid: "kni"
+  password: !secret kni_pw
+
+switch:
+  - platform: gpio
+    id: usbswitch
+    pin:
+      number: GPIO25
+    restore_mode: ALWAYS_OFF
+    on_turn_on:
+      - delay: 250ms
+      - switch.turn_off: usbswitch
+
+binary_sensor:
+  - platform: gpio
+    id: button1
+    pin:
+      number: GPIO39
+      inverted: true
+    filters:
+      delayed_off: 30ms
+    on_release:
+      then:
+        - switch.turn_on: usbswitch

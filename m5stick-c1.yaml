@@ -4,8 +4,8 @@ esphome:
   board: m5stick-c
 
 # Enable logging
-#logger:
-#  level: DEBUG
+logger:
+  level: INFO
 
 ota:
   password: ""
@@ -25,8 +25,23 @@ binary_sensor:
     pin:
       number: GPIO37
       inverted: true
+    filters:
+      delayed_off: 30ms
     on_release:
       then:
         - mqtt.publish:
             topic: m5stick-c/button1
             payload: ding
+
+  - platform: gpio
+    id: button2
+    pin:
+      number: GPIO39
+      inverted: true
+    filters:
+      delayed_off: 30ms
+    on_release:
+      then:
+        - mqtt.publish:
+            topic: office/usbswitch
+            payload: click

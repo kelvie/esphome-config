@@ -2,6 +2,11 @@ esphome:
   name: m5stick-c1
   platform: ESP32
   board: m5stick-c
+  on_boot:
+    then:
+      - light.turn_on:
+          id: red_led
+          brightness: 5%
 
 # Enable logging
 logger:
@@ -45,3 +50,15 @@ binary_sensor:
         - mqtt.publish:
             topic: office/usbswitch
             payload: click
+
+output:
+  - platform: ledc
+    pin:
+      number: GPIO10
+      inverted: true
+    id: gpio_10
+
+light:
+  - platform: monochromatic
+    output: gpio_10
+    id: red_led

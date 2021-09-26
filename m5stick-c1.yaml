@@ -88,29 +88,42 @@ binary_sensor:
     id: neo1
     filters:
       delayed_off: 30ms
-    on_release:
+    on_click:
       then:
         - mqtt.publish:
             topic: nanlink/ch4
             payload: dim_up 120
+
   - platform: template
     id: neo2
-    filters:
-      delayed_off: 30ms
-    on_release:
+    on_click:
       then:
         - mqtt.publish:
             topic: nanlink/ch4
             payload: dim_up 5
+
+    on_double_click:
+      min_length: 30ms
+      then:
+        - mqtt.publish:
+            topic: nanlink/ch4
+            payload: dim_up 120
+
   - platform: template
     id: neo3
-    filters:
-      delayed_off: 30ms
-    on_release:
+    on_click:
       then:
         - mqtt.publish:
             topic: nanlink/ch4
             payload: dim_down 5
+
+    on_double_click:
+      min_length: 30ms
+      then:
+        - mqtt.publish:
+            topic: nanlink/ch4
+            payload: dim_down 120
+
   - platform: template
     id: neo4
     filters:
@@ -165,8 +178,8 @@ display:
     cs_pin: GPIO5
     dc_pin: GPIO23
     reset_pin: GPIO18
-    rotation: 90
+    rotation: 0
     lambda: |-
-      it.print(80, 0, id(font3), ST77XX_WHITE, TextAlign::TOP_CENTER, "USB switch");
-      it.print(160, 40, id(font3), ST77XX_WHITE, TextAlign::CENTER_RIGHT, "Kill");
-      it.printf(80, 80, id(font3), ST77XX_WHITE, TextAlign::BOTTOM_CENTER, "Battery level: %.0f%%", id(m5stick_batterylevel).state);
+      it.print(40, 160, id(font3), ST77XX_WHITE, TextAlign::BOTTOM_CENTER, "Kill");
+      it.print(80, 80, id(font3), ST77XX_WHITE, TextAlign::CENTER_RIGHT, "USB");
+      it.printf(40, 0, id(font3), ST77XX_WHITE, TextAlign::TOP_CENTER, "BAT%.0f%%", id(m5stick_batterylevel).state);

@@ -10,7 +10,7 @@ class NeoKey1x4Component : public PollingComponent {
                            BinarySensor *button2,
                            BinarySensor *button3,
                            BinarySensor *button4) :
-            PollingComponent(40),
+            PollingComponent(10),
             color(color) {
 
             sensors.insert(sensors.end(), { button1, button2, button3, button4 });

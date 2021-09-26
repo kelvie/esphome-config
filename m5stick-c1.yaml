@@ -63,7 +63,7 @@ binary_sensor:
     pin:
       number: GPIO37
       inverted: true
-    filters:
+    filters: &button_filters
       delayed_off: 30ms
     on_release:
       then:
@@ -77,7 +77,7 @@ binary_sensor:
       number: GPIO39
       inverted: true
     filters:
-      delayed_off: 30ms
+      <<: *button_filters
     on_release:
       then:
         - mqtt.publish:
@@ -87,8 +87,9 @@ binary_sensor:
   - platform: template
     id: neo1
     filters:
-      delayed_off: 30ms
-    on_click:
+      <<: *button_filters
+    on_click: &click_defaults
+      min_length: 20ms
       then:
         - mqtt.publish:
             topic: office/usbswitch
@@ -97,28 +98,31 @@ binary_sensor:
   - platform: template
     id: neo2
     on_click:
+      <<: *click_defaults
       then:
         - mqtt.publish:
             topic: nanlink/ch4
             payload: dim_up 5
 
-    on_double_click:
-      min_length: 30ms
+    on_double_click: &doubleclick_defaults
+      min_length: 20ms
+      max_length: 150ms
       then:
         - mqtt.publish:
             topic: nanlink/ch4
-            payload: dim_up 120
+            payload: dim_up 40
 
   - platform: template
     id: neo3
     on_click:
+      <<: *click_defaults
       then:
         - mqtt.publish:
             topic: nanlink/ch4
             payload: dim_down 5
 
     on_double_click:
-      min_length: 30ms
+      <<: *doubleclick_defaults
       then:
         - mqtt.publish:
             topic: nanlink/ch4
@@ -127,7 +131,7 @@ binary_sensor:
   - platform: template
     id: neo4
     filters:
-      delayed_off: 30ms
+      <<: *button_filters
     on_release:
       then:
         - mqtt.publish:

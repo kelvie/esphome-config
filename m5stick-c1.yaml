@@ -28,7 +28,12 @@ mqtt:
   broker: kelvie-lws.lan
   username: m5stickc1
   password: !secret mqtt_m5stickc1_pw
+  id: mqtt_client
 
+text_sensor:
+  - platform: mqtt_subscribe
+    id: usbstatus
+    topic: office/usbstatus
 
 i2c:
   # Grove header, will be used by Wire
@@ -89,7 +94,7 @@ binary_sensor:
     filters:
       <<: *button_filters
     on_click: &click_defaults
-      min_length: 20ms
+      min_length: 40ms
       then:
         - mqtt.publish:
             topic: office/usbswitch
@@ -184,6 +189,9 @@ display:
     reset_pin: GPIO18
     rotation: 0
     lambda: |-
-      it.print(40, 160, id(font3), ST77XX_WHITE, TextAlign::BOTTOM_CENTER, "Kill");
-      it.print(80, 80, id(font3), ST77XX_WHITE, TextAlign::CENTER_RIGHT, "USB");
-      it.printf(40, 0, id(font3), ST77XX_WHITE, TextAlign::TOP_CENTER, "BAT%.0f%%", id(m5stick_batterylevel).state);
+      it.print(it.get_width() / 2, it.get_height(), id(font3), ST77XX_WHITE, TextAlign::BOTTOM_CENTER, "Kill");
+      it.print(it.get_width(), it.get_height() / 2, id(font3), ST77XX_WHITE, TextAlign::CENTER_RIGHT, "USB");
+      it.printf(it.get_width() / 2, 0, id(font3), ST77XX_WHITE, TextAlign::TOP_CENTER, "BAT%.0f%%", id(m5stick_batterylevel).state);
+      if (id(usbstatus).has_state()) {
+          it.printf(0, it.get_height() / 2, id(font3), ST77XX_WHITE, TextAlign::CENTER_LEFT, id(usbstatus).state.c_str());
+      }

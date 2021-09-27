@@ -19,7 +19,10 @@ external_components:
 
 # Enable logging
 logger:
-  level: INFO
+  level: DEBUG
+  logs:
+    sensor: INFO
+    axp192.sensor: INFO
 
 ota:
   password: ""

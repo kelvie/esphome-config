@@ -94,7 +94,7 @@ binary_sensor:
     filters:
       <<: *button_filters
     on_click: &click_defaults
-      min_length: 40ms
+      min_length: 50ms
       then:
         - mqtt.publish:
             topic: office/usbswitch

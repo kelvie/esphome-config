@@ -69,7 +69,7 @@ binary_sensor:
       number: GPIO37
       inverted: true
     filters: &button_filters
-      delayed_off: 30ms
+      delayed_on_off: 40ms
     on_release:
       then:
         - mqtt.publish:
@@ -102,6 +102,8 @@ binary_sensor:
 
   - platform: template
     id: neo2
+    filters:
+      <<: *button_filters
     on_click:
       <<: *click_defaults
       then:
@@ -119,6 +121,8 @@ binary_sensor:
 
   - platform: template
     id: neo3
+    filters:
+      <<: *button_filters
     on_click:
       <<: *click_defaults
       then:

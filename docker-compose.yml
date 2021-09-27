@@ -9,6 +9,13 @@ services:
       - config:/mosquitto/config
       - data:/mosquitto/data
       - log:/mosquitto/log
+  exporter:
+    image: sapcc/mosquitto-exporter
+    ports:
+      - 9234:9234
+    environment:
+      - BROKER_ENDPOINT=tcp://broker:1883
+      - MQTT_CLIENT_ID=exporter
 
 volumes:
   config:

@@ -117,6 +117,7 @@ binary_sensor:
       then:
         - mqtt.publish:
             topic: nanlink/ch4
+            # this actually gets it to 50 cause it also queues up two clicks
             payload: dim_up 40
 
   - platform: template

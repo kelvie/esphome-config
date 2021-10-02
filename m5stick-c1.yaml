@@ -71,7 +71,7 @@ binary_sensor:
     on_release:
       then:
         - mqtt.publish:
-            topic: m5stick-c/button1
+            topic: office/end
             payload: ding
 
   - platform: gpio

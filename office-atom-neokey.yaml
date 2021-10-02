@@ -1,0 +1,104 @@
+esphome:
+  name: office-atom-neokey
+  platform: ESP32
+  board: esp32dev # actually an m5stack ATOM lite
+  libraries:
+    - SPI
+    - Wire
+    - adafruit/Adafruit BusIO
+    - adafruit/Adafruit seesaw Library
+  includes:
+    - neokey.h
+
+# Enable logging
+logger:
+  level: DEBUG
+
+ota:
+  password: ""
+
+wifi:
+  ssid: "kni"
+  password: !secret kni_pw
+
+mqtt:
+  broker: kelvie-lws.lan
+  username: office
+  password: !secret mqtt_office_pw
+
+custom_component:
+
+  - lambda: |-
+      // LED color is first argument
+      // Then the 4 BinarySensors to set the button states
+      return {new NeoKey1x4Component(
+          0xffffff, id(neo1), id(neo2), id(neo3), id(neo4))};
+    components:
+      - id: neokey1x4
+
+i2c:
+  # Grove header, will be used by Wire, connected to the neokey 1x4
+  - id: bus_a
+    sda: GPIO26
+    scl: GPIO32
+    scan: true
+
+binary_sensor:
+  - platform: template
+    id: neo1
+    filters: &button_filters
+      delayed_on_off: 40ms
+    on_click: &click_defaults
+      min_length: 50ms
+      then:
+        - mqtt.publish:
+            topic: office/usbswitch
+            payload: click
+
+  - platform: template
+    id: neo2
+    filters:
+      <<: *button_filters
+    on_click:
+      <<: *click_defaults
+      then:
+        - mqtt.publish:
+            topic: nanlink/ch4
+            payload: dim_up 5
+
+    on_double_click: &doubleclick_defaults
+      min_length: 20ms
+      max_length: 150ms
+      then:
+        - mqtt.publish:
+            topic: nanlink/ch4
+            # this actually gets it to 50 cause it also queues up two clicks
+            payload: dim_up 40
+
+  - platform: template
+    id: neo3
+    filters:
+      <<: *button_filters
+    on_click:
+      <<: *click_defaults
+      then:
+        - mqtt.publish:
+            topic: nanlink/ch4
+            payload: dim_down 5
+
+    on_double_click:
+      <<: *doubleclick_defaults
+      then:
+        - mqtt.publish:
+            topic: nanlink/ch4
+            payload: dim_down 120
+
+  - platform: template
+    id: neo4
+    filters:
+      <<: *button_filters
+    on_release:
+      then:
+        - mqtt.publish:
+            topic: m5stick-c/button1
+            payload: ding

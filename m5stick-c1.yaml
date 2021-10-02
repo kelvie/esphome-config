@@ -35,16 +35,10 @@ mqtt:
 
 text_sensor:
   - platform: mqtt_subscribe
-    id: usbstatus
-    topic: office/usbstatus
+    id: statustxt
+    topic: office/m5stick/status
 
 i2c:
-  # Grove header, will be used by Wire
-  - id: bus_a
-    sda: GPIO26
-    scl: GPIO25
-    scan: true
-
   - id: internal_i2c
     sda: GPIO21
     scl: GPIO22
@@ -55,7 +49,8 @@ wifi:
   password: !secret kni_pw
 
 
-# AXP192 power management - must be present to use 5v power for neokey
+# AXP192 power management - must be present to use 5v output on the top, or to
+# use the display
 sensor:
   - platform: axp192
     address: 0x34
@@ -91,74 +86,6 @@ binary_sensor:
         - mqtt.publish:
             topic: office/usbswitch
             payload: click
-
-  - platform: template
-    id: neo1
-    filters:
-      <<: *button_filters
-    on_click: &click_defaults
-      min_length: 50ms
-      then:
-        - mqtt.publish:
-            topic: office/usbswitch
-            payload: click
-
-  - platform: template
-    id: neo2
-    filters:
-      <<: *button_filters
-    on_click:
-      <<: *click_defaults
-      then:
-        - mqtt.publish:
-            topic: nanlink/ch4
-            payload: dim_up 5
-
-    on_double_click: &doubleclick_defaults
-      min_length: 20ms
-      max_length: 150ms
-      then:
-        - mqtt.publish:
-            topic: nanlink/ch4
-            # this actually gets it to 50 cause it also queues up two clicks
-            payload: dim_up 40
-
-  - platform: template
-    id: neo3
-    filters:
-      <<: *button_filters
-    on_click:
-      <<: *click_defaults
-      then:
-        - mqtt.publish:
-            topic: nanlink/ch4
-            payload: dim_down 5
-
-    on_double_click:
-      <<: *doubleclick_defaults
-      then:
-        - mqtt.publish:
-            topic: nanlink/ch4
-            payload: dim_down 120
-
-  - platform: template
-    id: neo4
-    filters:
-      <<: *button_filters
-    on_release:
-      then:
-        - mqtt.publish:
-            topic: nanlink/ch4
-            payload: dim_down 120
-
-custom_component:
-  - lambda: |-
-      // LED color is first argument
-      // Then the 4 BinarySensors to set the button states
-      return {new NeoKey1x4Component(
-          0x000000, id(neo1), id(neo2), id(neo3), id(neo4))};
-    components:
-      - id: neokey1x4
 
 output:
   - platform: ledc
@@ -198,8 +125,7 @@ display:
     rotation: 0
     lambda: |-
       it.print(it.get_width() / 2, it.get_height(), id(font3), ST77XX_WHITE, TextAlign::BOTTOM_CENTER, "Kill");
-      it.print(it.get_width(), it.get_height() / 2, id(font3), ST77XX_WHITE, TextAlign::CENTER_RIGHT, "USB");
       it.printf(it.get_width() / 2, 0, id(font3), ST77XX_WHITE, TextAlign::TOP_CENTER, "BAT%.0f%%", id(m5stick_batterylevel).state);
-      if (id(usbstatus).has_state()) {
-          it.printf(0, it.get_height() / 2, id(font3), ST77XX_WHITE, TextAlign::CENTER_LEFT, id(usbstatus).state.c_str());
+      if (id(statustxt).has_state()) {
+          it.printf(it.get_width() / 2, it.get_height() / 2, id(font3), ST77XX_WHITE, TextAlign::CENTER, id(statustxt).state.c_str());
       }

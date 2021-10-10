@@ -11,7 +11,7 @@ ota:
   password: ""
 
 mqtt:
-  broker: kelvie-lws.lan
+  broker: mosquitto.service.lan
   username: m5stickc1
   password: !secret mqtt_m5stickc1_pw
   on_message:

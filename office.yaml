@@ -22,9 +22,14 @@ ota:
 wifi:
   ssid: "kni"
   password: !secret kni_pw
+  manual_ip:
+    static_ip: 192.168.85.11
+    gateway: 192.168.84.1
+    subnet: 255.255.240.0
+    dns1: 192.168.94.1
 
 mqtt:
-  broker: kelvie-lws.lan
+  broker: mosquitto.service.lan
   username: office
   password: !secret mqtt_office_pw
 

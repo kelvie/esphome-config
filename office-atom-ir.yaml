@@ -22,7 +22,7 @@ remote_transmitter:
   carrier_duty_percent: 50%
 
 mqtt:
-  broker: kelvie-lws.lan
+  broker: mosquitto.service.lan
   username: office
   password: !secret mqtt_office_pw
   # Format of each message is "addr cmd"

@@ -28,7 +28,7 @@ ota:
   password: ""
 
 mqtt:
-  broker: kelvie-lws.lan
+  broker: mosquitto.service.lan
   username: m5stickc1
   password: !secret mqtt_m5stickc1_pw
   id: mqtt_client
@@ -47,6 +47,12 @@ i2c:
 wifi:
   ssid: "kni"
   password: !secret kni_pw
+  manual_ip:
+    static_ip: 192.168.85.13
+    gateway: 192.168.84.1
+    subnet: 255.255.240.0
+    dns1: 192.168.94.1
+
 
 
 # AXP192 power management - must be present to use 5v output on the top, or to

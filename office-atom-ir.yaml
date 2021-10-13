@@ -22,8 +22,8 @@ remote_transmitter:
   carrier_duty_percent: 50%
 
 mqtt:
-  broker: mosquitto.service.lan
-  username: office
+  broker: !secret mqtt_office_broker
+  username: !secret mqtt_office_user
   password: !secret mqtt_office_pw
   # Format of each message is "addr cmd"
   on_message:

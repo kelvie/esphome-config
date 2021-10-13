@@ -11,9 +11,9 @@ ota:
   password: ""
 
 mqtt:
-  broker: mosquitto.service.lan
-  username: m5stickc1
-  password: !secret mqtt_m5stickc1_pw
+  broker: !secret mqtt_office_broker
+  username: !secret mqtt_office_user
+  password: !secret mqtt_office_pw
   on_message:
     - topic: office/usbswitch
       then:

@@ -24,8 +24,8 @@ ota:
   password: ""
 
 mqtt:
-  broker: mosquitto.service.lan
-  username: office
+  broker: !secret mqtt_office_broker
+  username: !secret mqtt_office_user
   password: !secret mqtt_office_pw
 
 wifi:

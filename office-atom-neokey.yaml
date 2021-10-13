@@ -27,8 +27,8 @@ wifi:
     dns1: 192.168.94.1
 
 mqtt:
-  broker: mosquitto.service.lan
-  username: office
+  broker: !secret mqtt_office_broker
+  username: !secret mqtt_office_user
   password: !secret mqtt_office_pw
 
 custom_component:

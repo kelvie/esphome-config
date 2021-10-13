@@ -12,11 +12,20 @@ docker_opts =
 default: run
 
 run:
-	docker run $(docker_opts) --network=host --rm -v $$PWD:/config -it esphome/esphome run $(file)
+	docker run $(docker_opts) --network=host --rm -v $$PWD:/config -i esphome/esphome run $(file)
+
+upload:
+	docker run $(docker_opts) --network=host --rm -v $$PWD:/config -i esphome/esphome run $(file)
 
 logs:
-	docker run $(docker_opts) --network=host --rm -v $$PWD:/config -it esphome/esphome logs $(file)
+	docker run $(docker_opts) --network=host --rm -v $$PWD:/config -i esphome/esphome logs $(file)
 
 compile:
-	docker run $(docker_opts) --network=host --rm -v $$PWD:/config -it esphome/esphome compile  $(file)
+	docker run $(docker_opts) --network=host --rm -v $$PWD:/config -i esphome/esphome compile  $(file)
+
+%.target:
+	$(MAKE) file=$(basename $@).yaml upload
+
+update: m5stick-c1.target office-atom-neokey.target office.target
+
 # end

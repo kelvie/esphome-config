@@ -50,15 +50,15 @@ i2c:
 
 binary_sensor:
   - platform: template
-    id: neo4
+    id: neo1
     filters: &button_filters
       delayed_on_off: 40ms
     on_click: &click_defaults
       min_length: 50ms
       then:
         - mqtt.publish:
-            topic: nanlink/ch4
-            payload: dim_down 120
+            topic: office/super
+            payload: ding
 
   - platform: template
     id: neo2
@@ -99,11 +99,11 @@ binary_sensor:
             payload: dim_down 120
 
   - platform: template
-    id: neo1
+    id: neo4
     filters:
       <<: *button_filters
     on_release:
       then:
         - mqtt.publish:
-            topic: office/end
+            topic: office/monitor/restart
             payload: ding

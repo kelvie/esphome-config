@@ -102,7 +102,8 @@ binary_sensor:
     id: neo4
     filters:
       <<: *button_filters
-    on_release:
+    on_double_click:
+      <<: *doubleclick_defaults
       then:
         - mqtt.publish:
             topic: office/monitor/restart

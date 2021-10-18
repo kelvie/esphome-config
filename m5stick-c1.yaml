@@ -9,6 +9,7 @@ esphome:
     - adafruit/Adafruit seesaw Library
   includes:
     - neokey.h
+    - util.h
 
 external_components:
   - source:
@@ -27,11 +28,42 @@ logger:
 ota:
   password: ""
 
+remote_transmitter:
+  pin:
+    number: GPIO9
+  carrier_duty_percent: 50%
+
 mqtt:
   broker: !secret mqtt_office_broker
   username: !secret mqtt_office_user
   password: !secret mqtt_office_pw
   id: mqtt_client
+  # Format of each message is "addr cmd"
+  on_message:
+    - topic: office/irblast
+      then:
+        - remote_transmitter.transmit_nec:
+            address: !lambda |-
+              int addr;
+              int n = sscanf(x.c_str(), "%i %*s", &addr);
+              if (n != 1) {
+                  return 0;
+              }
+
+              ESP_LOGD("irblast", "address: 0x%.2x", addr);
+
+              return nec_format(addr & 0xff);
+
+            command: !lambda |-
+              int cmd;
+              int n = sscanf(x.c_str(), "%*s %i", &cmd);
+              if (n != 1) {
+                  return 0;
+              }
+
+              ESP_LOGD("irblast", "command: 0x%.2x", cmd);
+
+              return nec_format(cmd & 0xff);
 
 text_sensor:
   - platform: mqtt_subscribe

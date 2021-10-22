@@ -30,9 +30,9 @@ mqtt:
   broker: !secret mqtt_office_broker
   username: !secret mqtt_office_user
   password: !secret mqtt_office_pw
+  reboot_timeout: 0s
 
 custom_component:
-
   - lambda: |-
       // LED color is first argument
       // Then the 4 BinarySensors to set the button states

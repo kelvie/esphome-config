@@ -6,27 +6,29 @@
 
 file = office.yaml
 file = m5stick-c1.yaml
-docker_opts = --device=/dev/ttyUSB0
-docker_opts =
+docker_opts = -e TZ=America/Vancouver --network=host --rm -i
+ifneq ("$(wildcard /dev/ttyUSB0)","")
+	docker_opts += --device=/dev/ttyUSB0
+endif
 
 default: run
 
 run:
-	docker run $(docker_opts) --network=host --rm -v $$PWD:/config -i esphome/esphome run $(file)
+	docker run $(docker_opts) -v $$PWD:/config esphome/esphome run $(file)
 
 upload:
-	docker run $(docker_opts) --network=host --rm -v $$PWD:/config -i esphome/esphome run $(file) --no-logs
+	docker run $(docker_opts) -v $$PWD:/config esphome/esphome run $(file) --no-logs
 
 logs:
-	docker run $(docker_opts) --network=host --rm -v $$PWD:/config -i esphome/esphome logs $(file)
+	docker run $(docker_opts) -v $$PWD:/config esphome/esphome logs $(file)
 
 compile:
-	docker run $(docker_opts) --network=host --rm -v $$PWD:/config -i esphome/esphome compile  $(file)
+	docker run $(docker_opts) -v $$PWD:/config esphome/esphome compile  $(file)
 
 %.target:
 	$(MAKE) file=$(basename $@).yaml upload
 
 update: office-atom-neokey.target office.target
-# update: m5stick-c1.yaml
+# m5stick-c1.target
 
 # end

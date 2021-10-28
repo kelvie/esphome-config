@@ -3,6 +3,7 @@ esphome:
   platform: ESP32
   board: esp32dev # actually an m5stack ATOM lite
   libraries:
+    - SPI
     - rf24
   includes:
     - rf24-nanlink.h
@@ -32,7 +33,6 @@ mqtt:
   broker: !secret mqtt_office_broker
   username: !secret mqtt_office_user
   password: !secret mqtt_office_pw
-  reboot_timeout: 0s
 
 custom_component:
   - lambda: |-

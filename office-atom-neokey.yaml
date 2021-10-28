@@ -20,6 +20,7 @@ ota:
 wifi:
   ssid: "kni"
   password: !secret kni_pw
+  power_save_mode: none
   manual_ip:
     static_ip: 192.168.85.12
     gateway: 192.168.84.1
@@ -30,7 +31,6 @@ mqtt:
   broker: !secret mqtt_office_broker
   username: !secret mqtt_office_user
   password: !secret mqtt_office_pw
-  reboot_timeout: 0s
 
 custom_component:
   - lambda: |-

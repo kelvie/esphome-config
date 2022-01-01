@@ -31,7 +31,7 @@ binary_sensor:
     pin:
       number: 33
       mode: INPUT_PULLUP
-      inverted: False
+      inverted: True
     id: neo4
     filters: &button_filters
       delayed_on_off: 40ms

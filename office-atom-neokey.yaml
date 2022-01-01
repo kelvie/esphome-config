@@ -2,13 +2,6 @@ esphome:
   name: office-atom-neokey
   platform: ESP32
   board: esp32dev # actually an m5stack ATOM lite
-  libraries:
-    - SPI
-    - Wire
-    - adafruit/Adafruit BusIO
-    - adafruit/Adafruit seesaw Library
-  includes:
-    - neokey.h
 
 # Enable logging
 logger:
@@ -32,35 +25,28 @@ mqtt:
   username: !secret mqtt_office_user
   password: !secret mqtt_office_pw
 
-custom_component:
-  - lambda: |-
-      // LED color is first argument
-      // Then the 4 BinarySensors to set the button states
-      return {new NeoKey1x4Component(
-          0xffffff, id(neo1), id(neo2), id(neo3), id(neo4))};
-    components:
-      - id: neokey1x4
-
-i2c:
-  # Grove header, will be used by Wire, connected to the neokey 1x4
-  - id: bus_a
-    sda: GPIO26
-    scl: GPIO32
-    scan: true
 
 binary_sensor:
-  - platform: template
-    id: neo1
+  - platform: gpio
+    pin:
+      number: 33
+      mode: INPUT_PULLUP
+      inverted: False
+    id: neo4
     filters: &button_filters
       delayed_on_off: 40ms
     on_click: &click_defaults
       min_length: 50ms
       then:
         - mqtt.publish:
-            topic: office/super
+            topic: office/super # super ends
             payload: ding
 
-  - platform: template
+  - platform: gpio
+    pin:
+      number: 19
+      mode: INPUT_PULLUP
+      inverted: True
     id: neo2
     filters:
       <<: *button_filters
@@ -80,7 +66,11 @@ binary_sensor:
             # this actually gets it to 50 cause it also queues up two clicks
             payload: dim_up 40
 
-  - platform: template
+  - platform: gpio
+    pin:
+      number: 23
+      mode: INPUT_PULLUP
+      inverted: True
     id: neo3
     filters:
       <<: *button_filters
@@ -98,8 +88,12 @@ binary_sensor:
             topic: nanlink/ch4
             payload: dim_down 120
 
-  - platform: template
-    id: neo4
+  - platform: gpio
+    pin:
+      number: 22
+      mode: INPUT_PULLUP
+      inverted: True
+    id: neo1
     filters:
       <<: *button_filters
     on_double_click:

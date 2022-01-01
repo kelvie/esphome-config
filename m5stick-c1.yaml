@@ -14,8 +14,8 @@ esphome:
 external_components:
   - source:
       type: git
-      url: https://github.com/crowbarz/esphome-m5stickC
-      ref: crowbarz-colorutil
+      url: https://github.com/kelvie/esphome-m5stickC
+      ref: master
 
 
 # Enable logging
@@ -109,7 +109,7 @@ binary_sensor:
     on_release:
       then:
         - mqtt.publish:
-            topic: office/end
+            topic: office/super
             payload: ding
 
   - platform: gpio
@@ -122,8 +122,8 @@ binary_sensor:
     on_release:
       then:
         - mqtt.publish:
-            topic: office/usbswitch
-            payload: click
+            topic: office/monitor/restart
+            payload: ding
 
 output:
   - platform: ledc

@@ -115,7 +115,7 @@ class RF24NanlinkSpiComponent : public Component, public CustomMQTTDevice {
         radio.write(message, 32);
         // Large consecutive writes don't seem to be bueno
         if (i > 0) {
-          delay(5);
+          delay(10);
         }
         seqno++;
       }

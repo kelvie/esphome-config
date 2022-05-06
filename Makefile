@@ -23,7 +23,7 @@ logs:
 	docker run $(docker_opts) -v $$PWD:/config esphome/esphome logs $(file)
 
 compile:
-	docker run $(docker_opts) -v $$PWD:/config esphome/esphome compile  $(file)
+	docker run $(docker_opts) -v $$PWD:/config esphome/esphome compile $(file)
 
 %.target:
 	$(MAKE) file=$(basename $@).yaml upload

@@ -3,7 +3,6 @@ esphome:
   name: sonoff-s31-2
   platform: ESP8266
   board: esp01_1m
-
 wifi:
   ssid: "kni"
   password: !secret kni_pw
@@ -12,22 +11,17 @@ wifi:
     gateway: 192.168.84.1
     subnet: 255.255.240.0
     dns1: 192.168.94.1
-
 mqtt:
   broker: !secret mqtt_office_broker
   username: !secret mqtt_office_user
   password: !secret mqtt_office_pw
-
 logger:
   baud_rate: 0 # (UART logging interferes with cse7766)
 ota:
-
 # Device Specific Config
-
 uart:
   rx_pin: RX
   baud_rate: 4800
-
 binary_sensor:
   - platform: gpio
     pin:
@@ -39,7 +33,6 @@ binary_sensor:
       - switch.toggle: relay
   - platform: status
     name: "Sonoff S31 Status"
-
 sensor:
   - platform: wifi_signal
     name: "Sonoff S31 WiFi Signal"
@@ -64,28 +57,23 @@ sensor:
       name: "Sonoff S31 Total energy"
       on_value:
         then:
-          - mqtt.publish:
+          - mqtt.publish_json:
               topic: sensors/sonoff-s31-2
               payload: !lambda |-
-                char str[1024];
-                snprintf(str, sizeof(str)/sizeof(char), "{ \"power_w\": %lf, \"current_a\": %lf, \"voltage_v_rms\":%lf }",
-                    id(my_power).state, id(my_current).state, id(my_voltage).state);
-                return str;
-
+                root["power_w"] = id(my_power).state;
+                root["current_a"] = id(my_current).state;
+                root["voltage_v"] = id(my_voltage).state;
   - platform: total_daily_energy
     name: "Sonoff S31 Daily Energy"
     power_id: my_power
-
 switch:
   - platform: gpio
     name: "Sonoff S31 Relay"
     pin: GPIO12
     id: relay
     restore_mode: ALWAYS_ON
-
 time:
   - platform: sntp
     id: my_time
-
 status_led:
   pin: GPIO13

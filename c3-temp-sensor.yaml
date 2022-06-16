@@ -5,6 +5,7 @@ esphome:
     board_build.flash_mode: dio
 
 esp32:
+  # Actually an m5stamp C3U
   board: esp32-c3-devkitm-1
   framework:
     type: esp-idf
@@ -42,6 +43,11 @@ wifi:
     gateway: 192.168.84.1
     subnet: 255.255.240.0
     dns1: 192.168.94.1
+
+
+time:
+  - platform: sntp
+    id: my_time
 
 mqtt:
   broker: !secret mqtt_office_broker

@@ -70,7 +70,7 @@ sensor:
                 root["power_w"] = id(my_power).state;
                 root["current_a"] = id(my_current).state;
                 root["voltage_v"] = id(my_voltage).state;
-
+                root["energy_wh"] = x;
 
 
   - platform: total_daily_energy

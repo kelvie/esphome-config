@@ -11,6 +11,10 @@ ifneq ("$(wildcard /dev/ttyUSB0)","")
 	docker_opts += --device=/dev/ttyUSB0
 endif
 
+ifneq ("$(wildcard /dev/ttyACM1)","")
+	docker_opts += --device=/dev/ttyACM1
+endif
+
 default: run
 
 run:

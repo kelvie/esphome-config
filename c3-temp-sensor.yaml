@@ -1,0 +1,49 @@
+
+esphome:
+  name: c3-tempsensor-1
+  platformio_options:
+    board_build.flash_mode: dio
+
+esp32:
+  board: esp32-c3-devkitm-1
+  framework:
+    type: esp-idf
+
+# Enable logging
+logger:
+  level: INFO
+
+ota:
+
+sensor:
+  - platform: dht
+    model: DHT22
+    pin: GPIO3
+    temperature:
+      name: "DHT22 Temp"
+      id: my_temp
+    humidity:
+      name: "DHT22 Humidity"
+      id: my_humidity
+      on_value:
+        then:
+          - mqtt.publish_json:
+              topic: sensors/c3-tempsensor-1
+              payload: !lambda |-
+                root["temp_c"] = id(my_temp).state;
+                root["humidity_percent"] = id(my_humidity).state;
+    update_interval: 10s
+
+wifi:
+  ssid: "kni"
+  password: !secret kni_pw
+  manual_ip:
+    static_ip: 192.168.85.22
+    gateway: 192.168.84.1
+    subnet: 255.255.240.0
+    dns1: 192.168.94.1
+
+mqtt:
+  broker: !secret mqtt_office_broker
+  username: !secret mqtt_office_user
+  password: !secret mqtt_office_pw

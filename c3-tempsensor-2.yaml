@@ -1,12 +1,10 @@
-
-
 esphome:
   name: c3-tempsensor-2
   platformio_options:
     board_build.flash_mode: dio
 
 esp32:
-  # Actually an m5stamp C3U
+  # Actually an m5stamp C3
   board: esp32-c3-devkitm-1
   framework:
     type: esp-idf

@@ -29,6 +29,9 @@ logs:
 compile:
 	docker run $(docker_opts) -v $$PWD:/config esphome/esphome compile $(file)
 
+ips:
+	grep static_ip *.yaml
+
 %.target:
 	$(MAKE) file=$(basename $@).yaml upload
 

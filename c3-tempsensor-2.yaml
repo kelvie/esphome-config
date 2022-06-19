@@ -1,6 +1,7 @@
 
+
 esphome:
-  name: c3-tempsensor-1
+  name: c3-tempsensor-2
   platformio_options:
     board_build.flash_mode: dio
 
@@ -19,7 +20,7 @@ ota:
 sensor:
   - platform: dht
     model: DHT22
-    pin: GPIO3
+    pin: GPIO21
     temperature:
       name: "DHT22 Temp"
       id: my_temp
@@ -29,7 +30,7 @@ sensor:
       on_value:
         then:
           - mqtt.publish_json:
-              topic: sensors/c3-tempsensor-1
+              topic: sensors/c3-tempsensor-2
               payload: !lambda |-
                 root["temp_c"] = id(my_temp).state;
                 root["humidity_percent"] = id(my_humidity).state;
@@ -39,7 +40,7 @@ wifi:
   ssid: "kni"
   password: !secret kni_pw
   manual_ip:
-    static_ip: 192.168.85.22
+    static_ip: 192.168.85.23
     gateway: 192.168.84.1
     subnet: 255.255.240.0
     dns1: 192.168.94.1

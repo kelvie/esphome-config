@@ -31,9 +31,10 @@ sensor:
           - mqtt.publish_json:
               topic: sensors/c3-tempsensor-1
               payload: !lambda |-
+                root["timestamp"] = id(my_time).now().timestamp;
                 root["temp_c"] = id(my_temp).state;
                 root["humidity_percent"] = id(my_humidity).state;
-    update_interval: 10s
+    update_interval: 5s
 
 wifi:
   ssid: "kni"

@@ -1,0 +1,67 @@
+esphome:
+  name: atom-tempsensor-1
+
+esp32:
+  # actually an atom lite
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+# Enable logging
+logger:
+  level: INFO
+
+ota:
+
+i2c:
+  sda: 22
+  scl: 19
+  scan: true
+
+sensor:
+  - platform: bme680
+    temperature:
+      name: "BME680 Temperature"
+      oversampling: 16x
+      id: my_temp
+    pressure:
+      name: "BME680 Pressure"
+      id: my_pressure
+    humidity:
+      name: "BME680 Humidity"
+      id: my_humidity
+    gas_resistance:
+      name: "BME680 Gas Resistance"
+      id: my_gasR
+      # Resistance should be the last value returned
+      on_value:
+        then:
+          - mqtt.publish_json:
+              topic: sensors/atom-tempsensor-1
+              payload: !lambda |-
+                root["timestamp"] = id(my_time).now().timestamp;
+                root["temp_c"] = id(my_temp).state;
+                root["humidity_percent"] = id(my_humidity).state;
+                root["pressure_hpa"] = id(my_pressure).state;
+                root["gas_resistance_ohms"] = id(my_gasR).state;
+    address: 0x77
+    update_interval: 10s
+
+wifi:
+  ssid: "kni"
+  password: !secret kni_pw
+  manual_ip:
+    static_ip: 192.168.85.24
+    gateway: 192.168.84.1
+    subnet: 255.255.240.0
+    dns1: 192.168.94.1
+
+
+time:
+  - platform: sntp
+    id: my_time
+
+mqtt:
+  broker: !secret mqtt_office_broker
+  username: !secret mqtt_office_user
+  password: !secret mqtt_office_pw

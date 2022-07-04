@@ -100,6 +100,7 @@ protected:
     }
 
     // TODO: check CRC and the second copy of the message
+    // https://github.com/merbanan/rtl_433/blob/master/src/devices/acurite.c
 
     if (!rising) {
       // don't set last_edge, as we only care about rising edges for this

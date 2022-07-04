@@ -35,13 +35,21 @@ public:
     last_edge_ = micros();
   }
 
+  int parse_temp_celsius(char n) {
+    int magnitude_f = n & (~0x80);
+    magnitude_f *=  n & 0x80 ? -1 : 1;
+
+    return (magnitude_f - 32) * 100 / 180;
+  }
+
   void loop() override {
     char msg[5];
     while (xQueueReceive(queue_, msg, 0) == pdTRUE) {
-      // TODO: process message into temperature, id (with sensor 1 or 2),
-      // temperature, battery status
-      ESP_LOGD(TAG, "Got value %x %x %x %x", msg[0], msg[1], msg[2],
-               msg[3]);
+      // TODO: place these into sensor outputs for esphome, to send to MQTT
+      // TODO: create mqtt topic names based on sensor IDs
+      ESP_LOGD(TAG, "Sensor %d (id: %.2x%.2x) %d°C.%s",
+               msg[3] & 1 ? 2 : 1, msg[1], msg[2], parse_temp_celsius(msg[0]),
+               msg[3] & 2 ? " Low battery." : "");
     }
 
     int log_sync_cycle;
@@ -59,8 +67,7 @@ public:
   static const uint32_t width_tolerance_us_ = 200;
 
   // For logging
-  static constexpr const char* TAG = "acurite00986";
-
+  static constexpr const char *TAG = "acurite00986";
 
 protected:
   static bool inline compare_pulse(uint32_t a, uint32_t b) {
@@ -92,6 +99,7 @@ protected:
       goto end;
     }
 
+    // TODO: check CRC and the second copy of the message
 
     if (!rising) {
       // don't set last_edge, as we only care about rising edges for this
@@ -110,12 +118,13 @@ protected:
     // xQueueSendFromISR(sensor->log_queue_, &debug_send, NULL);
 
     // At this point, we're measuring rising to rising for logic highs and
-    // lows
+    // lows. Bytes are sent LSB first
     if (sensor->compare_pulse(now - sensor->last_edge_, logic_high_width_us_)) {
-      *cur = (*cur << 1) + 1;
+      *cur = (*cur >> 1) + 0x80;
       sensor->bit_index_++;
-    } else if (sensor->compare_pulse(now - sensor->last_edge_, logic_low_width_us_)) {
-      *cur = *cur << 1;
+    } else if (sensor->compare_pulse(now - sensor->last_edge_,
+                                     logic_low_width_us_)) {
+      *cur = *cur >> 1;
       sensor->bit_index_++;
     } else {
       // Not high, not low, probably noise.
@@ -169,7 +178,7 @@ private:
   volatile bool edge_after_sync_;
   volatile QueueHandle_t queue_;
 
-  // This is to trigger a log statement to debug sync cycles
+  // For debugging the ISR
   volatile QueueHandle_t log_queue_;
 };
 

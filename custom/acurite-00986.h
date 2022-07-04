@@ -84,9 +84,7 @@ protected:
     // We are not synced util we have seen 7 edges spaced sync_width_us apart
     if (sensor->sync_cycles_ < 7) {
       if (sensor->compare_pulse(now - sensor->last_edge_, sync_width_us_)) {
-
         sensor->sync_cycles_++;
-
         goto end;
       }
 
@@ -117,7 +115,6 @@ protected:
       *cur = (*cur << 1) + 1;
       sensor->bit_index_++;
     } else if (sensor->compare_pulse(now - sensor->last_edge_, logic_low_width_us_)) {
-
       *cur = *cur << 1;
       sensor->bit_index_++;
     } else {
@@ -138,6 +135,8 @@ protected:
     // Send the full message after all 5 messages are received
     if (sensor->msg_index_ >= 5) {
       char msg[5];
+
+      // memcpy(msg, sensor->msg_, 5);
       for (int i = 0; i < sizeof(msg); i++) {
         msg[i] = sensor->msg_[i];
       }

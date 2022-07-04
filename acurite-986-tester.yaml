@@ -1,0 +1,47 @@
+esphome:
+  name: acurite-986-tester
+  includes:
+    - custom/acurite-00986.h
+
+esp32:
+  # actually an atom lite
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+# Enable logging
+logger:
+  level: DEBUG
+
+ota:
+
+wifi:
+  ssid: "kni"
+  password: !secret kni_pw
+  manual_ip:
+    # Choose by running "make ips"
+    static_ip: 192.168.85.25
+    gateway: 192.168.84.1
+    subnet: 255.255.240.0
+    dns1: 192.168.94.1
+
+
+time:
+  - platform: sntp
+    id: my_time
+
+mqtt:
+  broker: !secret mqtt_office_broker
+  username: !secret mqtt_office_user
+  password: !secret mqtt_office_pw
+
+sensor:
+
+text_sensor:
+  - platform: custom
+    lambda: |-
+      auto acurite_sensor = new Acurite00986Sensor(GPIO_NUM_15);
+      App.register_component(acurite_sensor);
+      return {acurite_sensor};
+    text_sensors:
+      name: "Acurite temperature sensor"

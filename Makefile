@@ -15,22 +15,27 @@ ifneq ("$(wildcard /dev/ttyACM1)","")
 	docker_opts += --device=/dev/ttyACM1
 endif
 
+esphome_cmd = esphome
+# Uncomment to use docker
+# esphome_cmd = docker run $(docker_opts) -v $$PWD:/config esphome/esphome
+
+
 default: run
 
 run:
-	docker run $(docker_opts) -v $$PWD:/config esphome/esphome run $(file)
+	$(esphome_cmd) run $(file)
 
 upload:
-	docker run $(docker_opts) -v $$PWD:/config esphome/esphome run $(file) --no-logs
+	$(esphome_cmd) run $(file) --no-logs
 
 logs:
-	docker run $(docker_opts) -v $$PWD:/config esphome/esphome logs $(file)
+	$(esphome_cmd) logs $(file)
 
 compile:
-	docker run $(docker_opts) -v $$PWD:/config esphome/esphome compile $(file)
+	$(esphome_cmd) compile $(file)
 
 ips:
-	grep static_ip *.yaml
+	grep -h static_ip *.yaml | sort -n
 
 %.target:
 	$(MAKE) file=$(basename $@).yaml upload

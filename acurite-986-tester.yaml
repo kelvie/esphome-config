@@ -35,13 +35,8 @@ mqtt:
   username: !secret mqtt_office_user
   password: !secret mqtt_office_pw
 
-sensor:
-
-text_sensor:
-  - platform: custom
-    lambda: |-
-      auto acurite_sensor = new Acurite00986Sensor(GPIO_NUM_15);
-      App.register_component(acurite_sensor);
-      return {acurite_sensor};
-    text_sensors:
-      name: "Acurite temperature sensor"
+custom_component:
+  - lambda: |-
+      auto acurite_component = new Acurite00986Component(GPIO_NUM_15, "sensors/acurite-986-");
+      App.register_component(acurite_component);
+      return {acurite_component};

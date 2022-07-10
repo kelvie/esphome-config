@@ -40,7 +40,8 @@ ips:
 %.target:
 	$(MAKE) file=$(basename $@).yaml upload
 
-update: office-atom-neokey.target office.target
+FILES_TO_UPDATE = $(patsubst %.yaml,%.target,$(wildcard sonoff*.yaml))
+update: $(FILES_TO_UPDATE)
 # m5stick-c1.target
 
 # end

@@ -25,10 +25,6 @@ button:
   - platform: restart
     name: Restart
     id: restart_button
-interval:
-  - interval: 24h
-    then:
-      - button.press: restart_button
 uart:
   rx_pin: RX
   baud_rate: 4800
@@ -86,5 +82,11 @@ switch:
 time:
   - platform: sntp
     id: my_time
+    on_time:
+      - seconds: 0
+        minutes: 0
+        hours: 0
+        then:
+          - button.press: restart_button
 status_led:
   pin: GPIO13

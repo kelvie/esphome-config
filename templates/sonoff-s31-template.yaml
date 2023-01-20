@@ -24,6 +24,17 @@ ota:
 
 # Device Specific Config
 
+# counters sometimes get stuck, fix this by restarting every day
+button:
+  - platform: restart
+    name: Restart
+    id: restart_button
+
+interval:
+  - interval: 24h
+    then:
+      - button.press: restart_button
+
 uart:
   rx_pin: RX
   baud_rate: 4800

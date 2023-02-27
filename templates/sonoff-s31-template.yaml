@@ -64,25 +64,24 @@ sensor:
       name: "Sonoff S31 Power"
       accuracy_decimals: 2
       id: my_power
-    # This is only used as a trigger to send the mqtt messages, as this is when
-    # all the other sensors have been read.
     energy:
       name: "Sonoff S31 Total energy"
-      force_update: true
-      on_value:
-        then:
-          - mqtt.publish_json:
-              topic: sensors/sonoff-s31-NUMBER
-              payload: !lambda |-
-                root["power_w"] = id(my_power).state;
-                root["current_a"] = id(my_current).state;
-                root["voltage_v"] = id(my_voltage).state;
-                root["energy_wh"] = x;
-
+      id: my_energy
 
   - platform: total_daily_energy
     name: "Sonoff S31 Daily Energy"
     power_id: my_power
+
+interval:
+  - interval: 5s
+    then:
+      - mqtt.publish_json:
+          topic: sensors/sonoff-s31-NUMBER
+          payload: !lambda |-
+            root["power_w"] = id(my_power).state;
+            root["current_a"] = id(my_current).state;
+            root["voltage_v"] = id(my_voltage).state;
+            root["energy_wh"] = id(my_energy).state;
 
 switch:
   - platform: gpio

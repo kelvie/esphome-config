@@ -1,6 +1,6 @@
 .instances |
     map( .output |= load("sonoff-s31-template.yaml") |
             .output.esphome.name |= sub("NUMBER", parent | parent | parent | .number) |
-            .output.sensor[1].energy.on_value.then[0]."mqtt.publish_json".topic |= sub("NUMBER",  parent | parent | parent | parent | parent | parent | parent | parent | parent | .number) |
+            .output.interval[0].then[0]."mqtt.publish_json".topic |= sub("NUMBER",  parent | parent | parent | parent | parent | parent | parent | .number) |
             .output.wifi.manual_ip.static_ip = .ip
     ) | .[].output

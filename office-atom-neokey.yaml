@@ -25,6 +25,9 @@ mqtt:
   username: !secret mqtt_office_user
   password: !secret mqtt_office_pw
 
+http_request:
+  useragent: esphome/device
+  timeout: 2s
 
 binary_sensor:
   - platform: gpio
@@ -38,9 +41,10 @@ binary_sensor:
     on_click: &click_defaults
       min_length: 50ms
       then:
-        - mqtt.publish:
-            topic: office/super # super ends
-            payload: ding
+        http_request.post:
+          url: https://picframe.svc.kelvie.ca/restart
+          verify_ssl: false
+          body: ""
 
   - platform: gpio
     pin:

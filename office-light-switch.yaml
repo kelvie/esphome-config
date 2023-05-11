@@ -1,0 +1,102 @@
+# ##################################
+# Martin Jerry 3-way Switch ST01
+# ##################################
+# D2 GPIO4: red led (inverted)
+# D1 GPIO5: blue led (inverted)
+# D6 GPIO12: relay
+# D7 GPIO13: button (inverted, input_pullup)
+# ##################################
+
+# Change to your preference
+substitutions:
+  device_name: office-light-switch
+  friendly_name: Office Light switch
+
+esphome:
+  name: $device_name
+  comment: $friendly_name
+
+esp8266:
+  # Using esp01 even though esptool shows 2MB flash
+  board: esp01_1m
+
+wifi:
+  ssid: "kni"
+  password: !secret kni_pw
+  manual_ip:
+    static_ip: 192.168.85.51
+    gateway: 192.168.84.1
+    subnet: 255.255.240.0
+    dns1: 192.168.94.1
+
+mqtt:
+  broker: !secret mqtt_office_broker
+  username: !secret mqtt_office_user
+  password: !secret mqtt_office_pw
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+
+# Enable OTA updates
+ota:
+
+# # Status LED
+# status_led:
+#   pin:
+#     number: GPIO4   # Red LED
+#     inverted: True
+
+
+# Button, use 10ms debounce (seems to work for me)
+binary_sensor:
+  - platform: gpio
+    name: ${friendly_name} Button
+    id: button
+    pin:
+      number: GPIO13
+      mode: INPUT_PULLUP
+      inverted: True
+    internal: True
+    filters:
+      - delayed_on: 10ms
+      - delayed_off: 10ms
+    on_press:
+      - light.toggle: main_light
+
+# Blue LED
+switch:
+  - platform: gpio
+    name: ${friendly_name} Blue LED
+    id: blue_led
+    pin:
+      number: GPIO5
+      inverted: True
+    internal: True
+
+# Relay
+output:
+  - platform: gpio
+    id: relay
+    pin:
+      number: GPIO12
+
+# I prefer to use 'light' instead of 'switch', since mine will
+# be used to control a light
+light:
+  - platform: binary
+    name: $friendly_name
+    output: relay
+    id: main_light
+    on_turn_on:
+      - switch.turn_on:  blue_led
+      - mqtt.publish:
+          topic: nanlink/ch4
+          payload: dim_up 5
+    on_turn_off:
+      - switch.turn_off: blue_led
+      - mqtt.publish:
+          topic: nanlink/ch4
+          payload: dim_down 120

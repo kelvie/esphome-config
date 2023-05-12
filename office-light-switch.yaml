@@ -38,7 +38,7 @@ mqtt:
 logger:
 
 # Enable Home Assistant API
-api:
+# api:
 
 # Enable OTA updates
 ota:
@@ -49,6 +49,10 @@ ota:
 #     number: GPIO4   # Red LED
 #     inverted: True
 
+
+http_request:
+  useragent: esphome/device
+  timeout: 2s
 
 # Button, use 10ms debounce (seems to work for me)
 binary_sensor:
@@ -65,6 +69,14 @@ binary_sensor:
       - delayed_off: 10ms
     on_press:
       - light.toggle: main_light
+    on_double_click:
+      min_length: 20ms
+      max_length: 150ms
+      then:
+        http_request.post:
+          url: https://picframe.svc.kelvie.ca/restart
+          verify_ssl: false
+          body: ""
 
 # Blue LED
 switch:

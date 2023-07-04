@@ -40,9 +40,9 @@ wifi:
   password: !secret kni_pw
   manual_ip:
     static_ip: 192.168.85.23
-    gateway: 192.168.84.1
+    gateway: 192.168.84.254
     subnet: 255.255.240.0
-    dns1: 192.168.94.1
+    dns1: 192.168.84.1
 
 
 time:

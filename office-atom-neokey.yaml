@@ -11,7 +11,7 @@ ota:
   password: ""
 
 wifi:
-  ssid: "kni"
+  ssid: "kns"
   password: !secret kni_pw
   power_save_mode: none
   manual_ip:

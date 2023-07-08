@@ -1,0 +1,290 @@
+ # https://github.com/fpovoski/ESP32-Temperature-Monitoring-PWM-Control-Board/blob/main/FB6261_GPIO.txt
+esphome:
+  name: pc-fan-control-1
+  platform: ESP32
+  board: wemos_d1_mini32
+  on_boot:
+    priority: 800
+    then:
+      # Turn on the pump to a set speed
+      - fan.turn_on:
+          id: pump_speed
+          speed: 50
+
+substitutions:
+  temp_pin: "36"
+
+wifi:
+  ssid: "kni"
+  password: !secret kni_pw
+  manual_ip:
+    # Choose by running "make ips"
+    static_ip: 192.168.85.28
+    gateway: 192.168.84.254
+    subnet: 255.255.240.0
+    dns1: 192.168.84.1
+
+logger:
+  level: DEBUG
+
+ota:
+
+mqtt:
+  broker: !secret mqtt_office_broker
+  username: !secret mqtt_office_user
+  password: !secret mqtt_office_pw
+  on_json_message:
+    - topic: pc-fan-control-1/settings
+      then:
+        - lambda: |-
+            if (x.containsKey("fan1_min")) {
+                auto call = id(fan1_min).make_call();
+                call.set_value(x["fan1_min"]);
+                call.perform();
+            }
+
+            if (x.containsKey("fan1_max")) {
+                auto call = id(fan1_max).make_call();
+                call.set_value(x["fan1_max"]);
+                call.perform();
+            }
+
+            if (x.containsKey("fan2_min")) {
+                auto call = id(fan2_min).make_call();
+                call.set_value(x["fan2_min"]);
+                call.perform();
+            }
+
+            if (x.containsKey("fan2_max")) {
+                auto call = id(fan2_max).make_call();
+                call.set_value(x["fan2_max"]);
+                call.perform();
+            }
+
+            if (x.containsKey("min_temp")) {
+                auto call = id(min_temp).make_call();
+                call.set_value(x["min_temp"]);
+                call.perform();
+            }
+
+            if (x.containsKey("max_temp")) {
+                auto call = id(max_temp).make_call();
+                call.set_value(x["max_temp"]);
+                call.perform();
+            }
+
+    # to test the curve
+    - topic: pc-fan-control-1/test
+      then:
+        - lambda: |-
+            auto f1_speed = id(fan1_min).state;
+            auto f2_speed = id(fan2_min).state;
+
+            auto trange = id(max_temp).state - id(min_temp).state;
+            if (trange < 1.0) {
+                // c'mon man
+                ESP_LOGE("ntc", "cowardly refusing to deal with such a low range");
+                return;
+            }
+
+            // Normalize over the range
+            auto tdiff = (x["temp"].as<float>() - id(min_temp).state) / trange;
+            auto fan1_range = id(fan1_max).state - id(fan1_min).state;
+            auto fan2_range = id(fan2_max).state - id(fan2_min).state;
+
+            // TODO: use some non linear curve?
+            f1_speed = fmin(fmax(id(fan1_min).state + tdiff * fan1_range, id(fan1_min).state), id(fan1_max).state);
+            f2_speed = fmin(fmax(id(fan2_min).state + tdiff * fan2_range, id(fan2_min).state), id(fan2_max).state);
+
+            ESP_LOGI("fancontrol", "Would set fan speed to %f %f", f1_speed, f2_speed);
+
+
+number:
+  # Temps to start ramping up the fans (and when to hit max)
+  - platform: template
+    id: min_temp
+    min_value: 20
+    max_value: 35
+    step: 1
+    restore_value: true
+    initial_value: '30'
+    unit_of_measurement: °C
+    optimistic: true
+
+  - platform: template
+    id: max_temp
+    min_value: 20
+    max_value: 45
+    step: 1
+    initial_value: '40'
+    unit_of_measurement: °C
+    optimistic: true
+
+    # Fan speeds for each fan, in case they need to be different due to airflow or whatever
+  - platform: template
+    id: fan1_min
+    min_value: 1
+    max_value: 50
+    step: 0.1
+    unit_of_measurement: "%"
+    initial_value: '10'
+    optimistic: true
+
+  - platform: template
+    id: fan1_max
+    min_value: 20
+    max_value: 100
+    step: 1
+    unit_of_measurement: "%"
+    initial_value: '100'
+    optimistic: true
+
+  - platform: template
+    id: fan2_min
+    min_value: 1
+    max_value: 50
+    step: 1
+    unit_of_measurement: "%"
+    restore_value: true
+    initial_value: '10'
+    optimistic: true
+
+  - platform: template
+    id: fan2_max
+    min_value: 20
+    max_value: 100
+    step: 1
+    unit_of_measurement: "%"
+    restore_value: true
+    initial_value: '100'
+    optimistic: true
+
+
+# Wire IO36 to IO27 (which has a 4.7k pullup)
+# Then use IO36 (because it has an ADC, and IO27 doesn't, ADC2 doesn't count
+# cause of wifi)
+sensor:
+  - platform: resistance
+    id: resistance_sensor
+    sensor: source_sensor
+    configuration: DOWNSTREAM
+    resistor: 4.73kOhm
+    name: Resistance Sensor
+  - platform: adc
+    id: source_sensor
+    attenuation: auto
+    pin: ${temp_pin}
+    update_interval: 2s
+
+  - platform: ntc
+    sensor: resistance_sensor
+    calibration:
+      b_constant: 3950
+      reference_temperature: 25°C
+      reference_resistance: 10kOhm
+    name: NTC Temperature
+    on_value:
+      then:
+        - lambda: |-
+
+            auto f1_speed = id(fan1_min).state;
+            auto f2_speed = id(fan2_min).state;
+
+            auto trange = id(max_temp).state - id(min_temp).state;
+            if (trange < 1.0) {
+                // c'mon man
+                ESP_LOGE("ntc", "cowardly refusing to deal with such a low range");
+                return;
+            }
+
+            // Normalize over the range
+            auto tdiff = (x - id(min_temp).state) / trange;
+            auto fan1_range = id(fan1_max).state - id(fan1_min).state;
+            auto fan2_range = id(fan2_max).state - id(fan2_min).state;
+
+            // TODO: use some non linear curve?
+            f1_speed = fmin(fmax(id(fan1_min).state + tdiff * fan1_range, id(fan1_min).state), id(fan1_max).state);
+            f2_speed = fmin(fmax(id(fan2_min).state + tdiff * fan2_range, id(fan2_min).state), id(fan2_max).state);
+
+            auto f1 = id(fan1_speed).turn_on();
+            f1.set_speed((int)f1_speed);
+            f1.perform();
+
+            auto f2 = id(fan2_speed).turn_on();
+            f2.set_speed((int)f2_speed);
+            f2.perform();
+
+
+output:
+  - platform: ledc
+    pin: GPIO13
+    id: fan1
+    frequency: 25600Hz
+
+  - platform: ledc
+    pin: GPIO14
+    id: fan2
+    frequency: 25600Hz
+
+  - platform: ledc
+    pin: GPIO25
+    id: fan3
+    frequency: 25600Hz
+
+  - platform: ledc
+    pin: GPIO32
+    id: pump
+    frequency: 25600Hz
+
+  - platform: ledc
+    id: led1
+    pin: GPIO2
+
+status_led:
+  pin: GPIO2
+
+light:
+  - platform: monochromatic
+    id: status_light
+    output: led1
+
+fan:
+  - platform: speed
+    output: fan1
+    id: fan1_speed
+    name: "Fan1 Speed (leftmost)"
+    restore_mode: ALWAYS_ON
+    speed_level_command_topic: klws/fan1
+
+  - platform: speed
+    output: fan2
+    id: fan2_speed
+    name: "Fan2 Speed"
+    restore_mode: ALWAYS_ON
+    speed_level_command_topic: klws/fan2
+
+  - platform: speed
+    output: fan3
+    id: fan3_speed
+    name: "Fan3 Speed"
+    restore_mode: ALWAYS_ON
+    speed_level_command_topic: klws/fan3
+
+  - platform: speed
+    output: pump
+    id: pump_speed
+    name: "Pump Speed (rightmost)"
+    restore_mode: RESTORE_DEFAULT_ON
+    speed_level_command_topic: klws/pump
+
+
+# Ideally we want to toggle the thermistor on and off but I don't think this
+# matters if it's in running water.
+# interval:
+#   - interval: 2s
+#     then:
+#       - lambda: |-
+#           gpio_pullup_en((gpio_num_t)${temp_pin});
+#       - component.update: source_sensor
+#       # - lambda: |-
+#       #     gpio_pullup_dis((gpio_num_t)${temp_pin});

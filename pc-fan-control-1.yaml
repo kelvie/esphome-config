@@ -34,45 +34,6 @@ mqtt:
   username: !secret mqtt_office_user
   password: !secret mqtt_office_pw
   on_json_message:
-    - topic: pc-fan-control-1/settings
-      then:
-        - lambda: |-
-            if (x.containsKey("fan1_min")) {
-                auto call = id(fan1_min).make_call();
-                call.set_value(x["fan1_min"]);
-                call.perform();
-            }
-
-            if (x.containsKey("fan1_max")) {
-                auto call = id(fan1_max).make_call();
-                call.set_value(x["fan1_max"]);
-                call.perform();
-            }
-
-            if (x.containsKey("fan2_min")) {
-                auto call = id(fan2_min).make_call();
-                call.set_value(x["fan2_min"]);
-                call.perform();
-            }
-
-            if (x.containsKey("fan2_max")) {
-                auto call = id(fan2_max).make_call();
-                call.set_value(x["fan2_max"]);
-                call.perform();
-            }
-
-            if (x.containsKey("min_temp")) {
-                auto call = id(min_temp).make_call();
-                call.set_value(x["min_temp"]);
-                call.perform();
-            }
-
-            if (x.containsKey("max_temp")) {
-                auto call = id(max_temp).make_call();
-                call.set_value(x["max_temp"]);
-                call.perform();
-            }
-
     # to test the curve
     - topic: pc-fan-control-1/test
       then:
@@ -103,6 +64,7 @@ number:
   # Temps to start ramping up the fans (and when to hit max)
   - platform: template
     id: min_temp
+    name: Min temp
     min_value: 20
     max_value: 35
     step: 1
@@ -113,9 +75,11 @@ number:
 
   - platform: template
     id: max_temp
+    name: Max temp
     min_value: 20
     max_value: 45
     step: 1
+    restore_value: true
     initial_value: '40'
     unit_of_measurement: °C
     optimistic: true
@@ -123,24 +87,29 @@ number:
     # Fan speeds for each fan, in case they need to be different due to airflow or whatever
   - platform: template
     id: fan1_min
+    name: Fan1 min
     min_value: 1
     max_value: 50
     step: 0.1
     unit_of_measurement: "%"
+    restore_value: true
     initial_value: '10'
     optimistic: true
 
   - platform: template
     id: fan1_max
+    name: Fan1 max
     min_value: 20
     max_value: 100
     step: 1
     unit_of_measurement: "%"
+    restore_value: true
     initial_value: '100'
     optimistic: true
 
   - platform: template
     id: fan2_min
+    name: Fan2 min
     min_value: 1
     max_value: 50
     step: 1
@@ -151,6 +120,7 @@ number:
 
   - platform: template
     id: fan2_max
+    name: Fan2 max
     min_value: 20
     max_value: 100
     step: 1

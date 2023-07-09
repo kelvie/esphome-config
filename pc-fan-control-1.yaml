@@ -93,7 +93,7 @@ number:
     step: 0.1
     unit_of_measurement: "%"
     restore_value: true
-    initial_value: '10'
+    initial_value: '20'
     optimistic: true
 
   - platform: template
@@ -126,7 +126,7 @@ number:
     step: 1
     unit_of_measurement: "%"
     restore_value: true
-    initial_value: '100'
+    initial_value: '80'
     optimistic: true
 
 

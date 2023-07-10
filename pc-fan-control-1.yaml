@@ -9,7 +9,7 @@ esphome:
       # Turn on the pump to a set speed
       - fan.turn_on:
           id: pump_speed
-          speed: 50
+          speed: 25
 
 substitutions:
   temp_pin: "36"
@@ -62,6 +62,7 @@ mqtt:
 
 number:
   # Temps to start ramping up the fans (and when to hit max)
+  # Ideally this should be some value above ambient
   - platform: template
     id: min_temp
     name: Min temp
@@ -187,6 +188,44 @@ sensor:
             topic: sensors/pc-fan-control-1
             payload: !lambda |-
               root["temp_c"] = x;
+
+# from https://github.com/fpovoski/ESP32-Temperature-Monitoring-PWM-Control-Board/blob/dc3530e554a5f4d856a56bf7267af1f67aff261c/avfan1.yaml
+#
+# - platform: debug
+#   free:
+#     name: "Heap Free"
+
+  - platform: pulse_counter
+    pin: GPIO33
+    unit_of_measurement: 'rpm'
+    name: "Fan1 Mon"
+    update_interval: 5s
+    filters:
+      - multiply: 0.5
+
+  - platform: pulse_counter
+    pin: GPIO34
+    unit_of_measurement: 'rpm'
+    name: "Fan2 Mon"
+    update_interval: 5s
+    filters:
+      - multiply: 0.5
+
+  - platform: pulse_counter
+    pin: GPIO35
+    unit_of_measurement: 'rpm'
+    name: "Fan3 Mon"
+    update_interval: 5s
+    filters:
+      - multiply: 0.5
+
+  - platform: pulse_counter
+    pin: GPIO39
+    unit_of_measurement: 'rpm'
+    name: "Pump Mon"
+    update_interval: 5s
+    filters:
+      - multiply: 0.5
 
 output:
   - platform: ledc

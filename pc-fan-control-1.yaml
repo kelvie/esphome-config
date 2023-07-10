@@ -183,7 +183,10 @@ sensor:
             auto f2 = id(fan2_speed).turn_on();
             f2.set_speed((int)f2_speed);
             f2.perform();
-
+        - mqtt.publish_json:
+            topic: sensors/pc-fan-control-1
+            payload: !lambda |-
+              root["temp_c"] = x;
 
 output:
   - platform: ledc

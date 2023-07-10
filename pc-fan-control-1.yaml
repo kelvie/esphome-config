@@ -139,6 +139,7 @@ sensor:
     id: resistance_sensor
     sensor: source_sensor
     configuration: DOWNSTREAM
+    # Measured using multimeter
     resistor: 4.73kOhm
     name: Resistance Sensor
   - platform: adc
@@ -150,7 +151,8 @@ sensor:
   - platform: ntc
     sensor: resistance_sensor
     calibration:
-      b_constant: 3950
+      # https://download.alphacool.com/legacy/kOhm_Sensor_Table_Alphacool.pdf
+      b_constant: 3435
       reference_temperature: 25°C
       reference_resistance: 10kOhm
     name: NTC Temperature

@@ -204,6 +204,12 @@ sensor:
     update_interval: 5s
     filters:
       - multiply: 0.5
+    on_value:
+      then:
+        - mqtt.publish_json:
+            topic: sensors/klws-fan1
+            payload: !lambda |-
+              root["rotation_rpm"] = x;
 
   - platform: pulse_counter
     pin: GPIO34
@@ -212,6 +218,12 @@ sensor:
     update_interval: 5s
     filters:
       - multiply: 0.5
+    on_value:
+      then:
+        - mqtt.publish_json:
+            topic: sensors/klws-fan2
+            payload: !lambda |-
+              root["rotation_rpm"] = x;
 
   - platform: pulse_counter
     pin: GPIO35
@@ -220,6 +232,12 @@ sensor:
     update_interval: 5s
     filters:
       - multiply: 0.5
+    on_value:
+      then:
+        - mqtt.publish_json:
+            topic: sensors/klws-fan3
+            payload: !lambda |-
+              root["rotation_rpm"] = x;
 
   - platform: pulse_counter
     pin: GPIO39
@@ -228,6 +246,12 @@ sensor:
     update_interval: 5s
     filters:
       - multiply: 0.5
+    on_value:
+      then:
+        - mqtt.publish_json:
+            topic: sensors/klws-pump
+            payload: !lambda |-
+              root["rotation_rpm"] = x;
 
 output:
   - platform: ledc

@@ -9,7 +9,7 @@ esphome:
       # Turn on the pump to a set speed
       - fan.turn_on:
           id: pump_speed
-          speed: 25
+          speed: 20
 
 substitutions:
   temp_pin: "36"
@@ -81,7 +81,7 @@ number:
     max_value: 45
     step: 1
     restore_value: true
-    initial_value: '40'
+    initial_value: '35'
     unit_of_measurement: °C
     optimistic: true
 
@@ -116,7 +116,7 @@ number:
     step: 1
     unit_of_measurement: "%"
     restore_value: true
-    initial_value: '10'
+    initial_value: '20'
     optimistic: true
 
   - platform: template
@@ -127,7 +127,7 @@ number:
     step: 1
     unit_of_measurement: "%"
     restore_value: true
-    initial_value: '80'
+    initial_value: '100'
     optimistic: true
 
 

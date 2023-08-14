@@ -87,6 +87,15 @@ switch:
       number: GPIO5
       inverted: True
     internal: True
+  - platform: gpio
+    name: ${friendly_name} Red LED
+    id: red_led
+    pin:
+      number: GPIO4
+      inverted: True
+    internal: True
+    # Always turn off the red LED when the device starts
+    restore_mode: RESTORE_DEFAULT_OFF
 
 # Relay
 output:
@@ -103,12 +112,12 @@ light:
     output: relay
     id: main_light
     on_turn_on:
-      - switch.turn_on:  blue_led
+      - switch.turn_off:  blue_led
       - mqtt.publish:
           topic: nanlink/ch4
           payload: dim_up 5
     on_turn_off:
-      - switch.turn_off: blue_led
+      - switch.turn_on: blue_led
       - mqtt.publish:
           topic: nanlink/ch4
           payload: dim_down 120

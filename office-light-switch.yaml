@@ -95,7 +95,6 @@ switch:
       inverted: True
     internal: True
     # Always turn off the red LED when the device starts
-    restore_mode: RESTORE_DEFAULT_OFF
 
 # Relay
 output:
@@ -112,12 +111,12 @@ light:
     output: relay
     id: main_light
     on_turn_on:
-      - switch.turn_off:  blue_led
+      - switch.turn_off: red_led
       - mqtt.publish:
           topic: nanlink/ch4
           payload: dim_up 5
     on_turn_off:
-      - switch.turn_on: blue_led
+      - switch.turn_on: red_led
       - mqtt.publish:
           topic: nanlink/ch4
           payload: dim_down 120

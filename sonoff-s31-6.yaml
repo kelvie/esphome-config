@@ -25,6 +25,8 @@ button:
   - platform: restart
     name: Restart
     id: restart_button
+substitutions:
+  energy_update_interval: 5s
 uart:
   rx_pin: RX
   baud_rate: 4800
@@ -44,22 +46,29 @@ sensor:
     name: "Sonoff S31 WiFi Signal"
     update_interval: 60s
   - platform: cse7766
-    update_interval: 5s
     current:
       name: "Sonoff S31 Current"
       accuracy_decimals: 4
       id: my_current
+      filters:
+        - throttle_average: ${energy_update_interval}
     voltage:
       name: "Sonoff S31 Voltage"
       accuracy_decimals: 1
       id: my_voltage
+      filters:
+        - throttle_average: ${energy_update_interval}
     power:
       name: "Sonoff S31 Power"
       accuracy_decimals: 2
       id: my_power
+      filters:
+        - throttle_average: ${energy_update_interval}
     energy:
       name: "Sonoff S31 Total energy"
       id: my_energy
+      filters:
+        - throttle_average: ${energy_update_interval}
   - platform: total_daily_energy
     name: "Sonoff S31 Daily Energy"
     power_id: my_power

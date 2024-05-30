@@ -26,7 +26,9 @@ run:
 	$(esphome_cmd) run $(file)
 
 upload:
-	$(esphome_cmd) run $(file) --no-logs
+    # get static IP using yq
+	$(eval static_ip := $(shell yq  .wifi.manual_ip.static_ip < $(file)))
+	$(esphome_cmd) upload $(file) --device $(static_ip)
 
 logs:
 	$(esphome_cmd) logs $(file)

@@ -4,7 +4,7 @@ esphome:
   platform: ESP8266
   board: esp01_1m
 wifi:
-  ssid: "kni"
+  ssid: "kns"
   password: !secret kni_pw
   manual_ip:
     static_ip: 192.168.85.17

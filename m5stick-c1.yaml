@@ -2,21 +2,12 @@ esphome:
   name: m5stick-c1
   platform: ESP32
   board: m5stick-c
-  libraries:
-    - SPI
-    - Wire
-    - adafruit/Adafruit BusIO
-    - adafruit/Adafruit seesaw Library
   includes:
-    - neokey.h
     - util.h
 
 external_components:
-  - source:
-      type: git
-      url: https://github.com/kelvie/esphome-m5stickC
-      ref: master
-
+  - source: github://martydingo/esphome-axp192
+    components: [axp192]
 
 # Enable logging
 logger:
@@ -40,7 +31,7 @@ mqtt:
   id: mqtt_client
   # Format of each message is "addr cmd"
   on_message:
-    - topic: office/irblast
+    - topic: m5stick/irblast
       then:
         - remote_transmitter.transmit_nec:
             address: !lambda |-
@@ -83,7 +74,7 @@ wifi:
     static_ip: 192.168.85.13
     gateway: 192.168.84.1
     subnet: 255.255.240.0
-    dns1: 192.168.94.1
+    dns1: 192.168.84.1
 
 
 
@@ -91,6 +82,7 @@ wifi:
 # use the display
 sensor:
   - platform: axp192
+    model: M5STICKC
     address: 0x34
     i2c_id: internal_i2c
     update_interval: 30s
@@ -137,33 +129,33 @@ light:
     output: gpio_10
     id: red_led
 
-font:
-  - file: 'font.ttf'
-    id: font1
-    size: 8
+# font:
+#   - file: 'font.ttf'
+#     id: font1
+#     size: 8
 
-  - file: 'font.ttf'
-    id: font2
-    size: 24
+#   - file: 'font.ttf'
+#     id: font2
+#     size: 24
 
-  - file: 'font.ttf'
-    id: font3
-    size: 14
+#   - file: 'font.ttf'
+#     id: font3
+#     size: 14
 
 spi:
   clk_pin: GPIO13
   mosi_pin: GPIO15
 
-# builtin 80x160 TFT
-display:
-  - platform: st7735
-    cs_pin: GPIO5
-    dc_pin: GPIO23
-    reset_pin: GPIO18
-    rotation: 0
-    lambda: |-
-      it.print(it.get_width() / 2, it.get_height(), id(font3), ST77XX_WHITE, TextAlign::BOTTOM_CENTER, "Kill");
-      it.printf(it.get_width() / 2, 0, id(font3), ST77XX_WHITE, TextAlign::TOP_CENTER, "BAT%.0f%%", id(m5stick_batterylevel).state);
-      if (id(statustxt).has_state()) {
-          it.printf(it.get_width() / 2, it.get_height() / 2, id(font3), ST77XX_WHITE, TextAlign::CENTER, id(statustxt).state.c_str());
-      }
+# # builtin 80x160 TFT
+# display:
+#   - platform: st7735
+#     cs_pin: GPIO5
+#     dc_pin: GPIO23
+#     reset_pin: GPIO18
+#     rotation: 0
+#     lambda: |-
+#       it.print(it.get_width() / 2, it.get_height(), id(font3), ST77XX_WHITE, TextAlign::BOTTOM_CENTER, "Kill");
+#       it.printf(it.get_width() / 2, 0, id(font3), ST77XX_WHITE, TextAlign::TOP_CENTER, "BAT%.0f%%", id(m5stick_batterylevel).state);
+#       if (id(statustxt).has_state()) {
+#           it.printf(it.get_width() / 2, it.get_height() / 2, id(font3), ST77XX_WHITE, TextAlign::CENTER, id(statustxt).state.c_str());
+#       }

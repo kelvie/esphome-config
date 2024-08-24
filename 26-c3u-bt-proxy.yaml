@@ -1,22 +1,29 @@
 # TODO: repurpose as IR blaster for TV
 esphome:
-  name: 26-c3u-irblaster
+  name: 26-c3u-bt-proxy
+  friendly_name: 26 Bluetooth Proxy
   platformio_options:
     board_build.flash_mode: dio
   includes:
     - util.h
 
 esp32:
-  # Actually an m5stamp C3U
   board: esp32-c3-devkitm-1
   framework:
     type: esp-idf
+    sdkconfig_options:
+      CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
+      CONFIG_BT_BLE_50_FEATURES_SUPPORTED: n
 
 # Enable logging
 logger:
   level: DEBUG
 
 ota:
+- platform: esphome
+  id: my_ota
+
+api:
 
 wifi:
   ssid: "kni"
@@ -28,59 +35,12 @@ wifi:
     subnet: 255.255.240.0
     dns1: 192.168.84.1
 
+esp32_ble_tracker:
+  scan_parameters:
+    # We currently use the defaults to ensure Bluetooth
+    # can co-exist with WiFi In the future we may be able to
+    # enable the built-in coexistence logic in ESP-IDF
+    active: true
 
-time:
-  - platform: sntp
-    id: my_time
-
-# store the address and command for the button press
-number:
-  # template for the address
-  - platform: template
-    name: "Address"
-    id: address
-    min_value: 0x00
-    max_value: 0xFFFFFFFF
-    restore_value: yes
-    initial_value: 0x04 # LG
-    optimistic: yes
-    step: 1
-  # template for the command
-  - platform: template
-    name: "Command"
-    id: command
-    min_value: 0x00
-    max_value: 0xFFFFFFFF
-    restore_value: yes
-    initial_value: 0x08 # Power for LG TV
-    optimistic: yes
-    step: 1
-
-mqtt:
-  broker: !secret mqtt_office_broker
-  username: !secret mqtt_office_user
-  password: !secret mqtt_office_pw
-
-
-remote_transmitter:
-  pin:
-    number: 1
-  carrier_duty_percent: 50%
-
-# button on gpio3
-binary_sensor:
-  - platform: gpio
-    name: Middle button
-    pin:
-      number: GPIO9
-      inverted: true
-      mode:
-        input: true
-        pullup: true
-    on_click:
-      then:
-        - remote_transmitter.transmit_nec:
-            address: !lambda |-
-              return nec_format((int)id(address).state);
-            command: !lambda |-
-              return nec_format((int)id(command).state);
+bluetooth_proxy:
+  active: true

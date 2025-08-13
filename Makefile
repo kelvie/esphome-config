@@ -15,7 +15,7 @@ ifneq ("$(wildcard /dev/ttyACM1)","")
 	docker_opts += --device=/dev/ttyACM1
 endif
 
-esphome_cmd = poetry run esphome
+esphome_cmd = uvx esphome
 # Uncomment to use docker
 # esphome_cmd = docker run $(docker_opts) -v $$PWD:/config esphome/esphome
 

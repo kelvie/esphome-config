@@ -1,7 +1,7 @@
 # Basic Config
 esphome:
   name: sonoff-s31-1
-  platform: ESP8266
+esp8266:
   board: esp01_1m
 wifi:
   ssid: "kni"
@@ -18,6 +18,7 @@ mqtt:
 logger:
   baud_rate: 0 # (UART logging interferes with cse7766)
 ota:
+  - platform: esphome
 # Device Specific Config
 
 # counters sometimes get stuck, fix this by restarting every day
@@ -30,6 +31,7 @@ substitutions:
 uart:
   rx_pin: RX
   baud_rate: 4800
+  parity: EVEN
 binary_sensor:
   - platform: gpio
     pin:

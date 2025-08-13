@@ -1,7 +1,8 @@
 # Basic Config
 esphome:
   name: sonoff-s31-NUMBER
-  platform: ESP8266
+
+esp8266:
   board: esp01_1m
 
 wifi:
@@ -20,7 +21,9 @@ mqtt:
 
 logger:
   baud_rate: 0 # (UART logging interferes with cse7766)
+
 ota:
+  - platform: esphome
 
 # Device Specific Config
 
@@ -35,6 +38,7 @@ substitutions:
 uart:
   rx_pin: RX
   baud_rate: 4800
+  parity: EVEN
 
 binary_sensor:
   - platform: gpio

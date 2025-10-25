@@ -46,4 +46,11 @@ FILES_TO_UPDATE = $(patsubst %.yaml,%.target,$(wildcard sonoff*.yaml))
 update: $(FILES_TO_UPDATE)
 # m5stick-c1.target
 
+# New target to compile all sonoff yaml files
+COMPILE_TARGETS = $(patsubst %.yaml,%.compile,$(wildcard sonoff*.yaml))
+compile_all: $(COMPILE_TARGETS)
+
+%.compile:
+	$(esphome_cmd) compile $(basename $@).yaml
+
 # end

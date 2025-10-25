@@ -29,6 +29,8 @@ wifi:
     subnet: 255.255.240.0
     dns1: 192.168.84.1
 
+api:
+
 mqtt:
   broker: !secret mqtt_office_broker
   username: !secret mqtt_office_user
@@ -42,6 +44,7 @@ logger:
 
 # Enable OTA updates
 ota:
+  platform: esphome
 
 # # Status LED
 # status_led:
@@ -53,6 +56,7 @@ ota:
 http_request:
   useragent: esphome/device
   timeout: 2s
+  verify_ssl: false
 
 # Button, use 10ms debounce (seems to work for me)
 binary_sensor:
@@ -75,7 +79,6 @@ binary_sensor:
       then:
         http_request.post:
           url: https://picframe.svc.kelvie.ca/restart
-          verify_ssl: false
           body: ""
 
 # Blue LED

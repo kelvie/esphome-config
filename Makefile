@@ -48,7 +48,7 @@ update: $(FILES_TO_UPDATE)
 
 # New target to compile all sonoff yaml files
 COMPILE_TARGETS = $(patsubst %.yaml,%.compile,$(wildcard sonoff*.yaml))
-compile_all: $(COMPILE_TARGETS)
+compile-all: $(COMPILE_TARGETS)
 
 %.compile:
 	$(esphome_cmd) compile $(basename $@).yaml

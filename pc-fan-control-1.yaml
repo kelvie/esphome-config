@@ -1,15 +1,15 @@
  # https://github.com/fpovoski/ESP32-Temperature-Monitoring-PWM-Control-Board/blob/main/FB6261_GPIO.txt
 esphome:
   name: pc-fan-control-1
-  platform: ESP32
-  board: wemos_d1_mini32
   on_boot:
     priority: 800
     then:
       # Turn on the pump to a set speed
       - fan.turn_on:
           id: pump_speed
-          speed: 20
+          speed: 40
+esp32:
+  board: wemos_d1_mini32
 
 substitutions:
   temp_pin: "36"
@@ -28,6 +28,7 @@ logger:
   level: DEBUG
 
 ota:
+  platform: esphome
 
 mqtt:
   broker: !secret mqtt_office_broker
@@ -81,7 +82,7 @@ number:
     max_value: 45
     step: 1
     restore_value: true
-    initial_value: '35'
+    initial_value: '45'
     unit_of_measurement: °C
     optimistic: true
 
@@ -274,17 +275,9 @@ output:
     id: pump
     frequency: 25600Hz
 
-  - platform: ledc
-    id: led1
-    pin: GPIO2
 
 status_led:
   pin: GPIO2
-
-light:
-  - platform: monochromatic
-    id: status_light
-    output: led1
 
 fan:
   - platform: speed
